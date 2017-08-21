@@ -2,7 +2,7 @@
 Version=1.0
 Encoding=UTF-8
 Name=Ice
-Comment=Desktop integration for webapps
+Comment=Crie seus Webapps.
 GenericName=Ice
 Exec=ice
 Icon=ice
