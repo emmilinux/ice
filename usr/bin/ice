@@ -189,6 +189,7 @@ def get_favicon_url(url):
 def applicate():
     title = name.get_text()
     address = normalize(url.get_text())
+    comentario = comment.get_text()
 
     semiformatted = ""
     array = filter(str.isalpha, title)
@@ -223,12 +224,12 @@ def applicate():
     iconext = iconname.replace(".", " ").split()[-1]
 
     if os.path.exists("{0}/{1}.desktop".format(_APPS_DIR, formatted)):
-        DuplicateError(title, formatted, address, iconext, location)
+        DuplicateError(title, formatted, address, iconext, location, comentario)
     else:
-        writefile(title, formatted, address, iconext, location)
+        writefile(title, formatted, address, iconext, location, comentario)
 
 
-def writefile(title, formatted, address, iconext, location):
+def writefile(title, formatted, address, iconext, location, comentario):
     global iconpath
     os.system("cp --force {0} {1}/{2}.{3}".format(iconpath, _ICE_DIR, formatted, iconext))
     appfile = os.path.expanduser("{0}/{1}.desktop".format(_APPS_DIR, formatted))
@@ -250,7 +251,7 @@ def writefile(title, formatted, address, iconext, location):
         appfile1.write("[Desktop Entry]\n")
         appfile1.write("Version=1.0\n")
         appfile1.write("Name={0}\n".format(title))
-        appfile1.write("Comment={0} (Webapp)\n".format(title))
+        appfile1.write("Comment={0} \n".format(comentario))
 
         if (browser == "ice-firefox"):
             appfile1.write("Exec={0} {1}\n".format(browser, address))
@@ -274,6 +275,7 @@ def writefile(title, formatted, address, iconext, location):
 
     name.set_text("")
     url.set_text("")
+    comment.set_text("")
     iconpath = _ICE_ICON
     new_icon = Pixbuf.new_from_file_at_size(iconpath, 32, 32)
     icon.set_from_pixbuf(new_icon)
@@ -402,7 +404,7 @@ class DuplicateError(Gtk.Window):
     def destroy(self, button):
         self.close()
 
-    def okay_clicked(self, button, title, formatted, address, iconext, location):
+    def okay_clicked(self, button, title, formatted, address, iconext, location, comentario):
 
         for item in liststore:
             itemiter = item.iter
@@ -417,10 +419,10 @@ class DuplicateError(Gtk.Window):
             if forma == formatted:
                 liststore.remove(itemiter)
 
-        writefile(title, formatted, address, iconext, location)
+        writefile(title, formatted, address, iconext, location, comentario)
         self.close()
 
-    def __init__(self, title, formatted, address, iconext, location):
+    def __init__(self, title, formatted, address, iconext, location, comentario):
         Gtk.Window.__init__(self, title="Erro de Duplicação")
         self.set_size_request(250, 130)
         self.set_icon_from_file(_ICE_ICON)
@@ -430,7 +432,7 @@ class DuplicateError(Gtk.Window):
         text_lab = Gtk.Label("O nome do SSB fará com que um SSB existente\nSer substituído. Para evitar isso, mude o nome\nContinuar de qualquer maneira?")
 
         okay = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
-        okay.connect("clicked", self.okay_clicked, title, formatted, address, iconext, location)
+        okay.connect("clicked", self.okay_clicked, title, formatted, address, iconext, location, comentario)
         cancel = Gtk.Button.new_from_stock(Gtk.STOCK_CANCEL)
         cancel.connect("clicked", self.destroy)
         void = Gtk.Label()
@@ -543,6 +545,9 @@ class Ice(Gtk.Window):
         global url
         url = Gtk.Entry()
         url.set_placeholder_text("Entre com o endereço Web")
+        global comment
+        comment = Gtk.Entry()
+        comment.set_placeholder_text("Entre com o comentário")
 
         where_store = ["Acessórios", "Jogos", "Gráficos", "Internet",
                        "Office", "Programação", "Som e Video", "Utilidades do Sistema", "Aplicativos", "Segurança"]
@@ -653,6 +658,7 @@ class Ice(Gtk.Window):
         create_vbox.pack_start(welcome, False, False, 15)
         create_vbox.pack_start(name, False, False, 0)
         create_vbox.pack_start(url, False, False, 10)
+        create_vbox.pack_start(comment, False, False, 0)
         create_vbox.pack_start(where_box, False, False, 10)
         create_vbox.pack_start(icon_hbox, False, False, 10)
         create_vbox.pack_start(button_box, False, False, 0)
